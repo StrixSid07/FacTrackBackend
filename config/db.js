@@ -7,6 +7,7 @@ const connectDB = async () => {
       useNewUrlParser: true, // Ensure new parser for connection string
       useUnifiedTopology: true, // Ensure new topology engine for more stable connections
       serverSelectionTimeoutMS: 30000, // Timeout in case MongoDB server is not reachable
+      socketTimeoutMS: 45000,
     });
     debug("MongoDB connection established successfully");
   } catch (error) {
