@@ -21,9 +21,17 @@ connectDB();
 
 // Cors policy
 // app.use(cors());
+// app.use(
+//   cors({
+//     origin: "http://localhost:5174", // or '*' to allow all origins
+//     methods: ["GET", "POST", "PUT", "DELETE"], // Add other methods if needed
+//     credentials: true, // If you need to send cookies with the request
+//   })
+// );
+
 app.use(
   cors({
-    origin: "http://localhost:5174", // or '*' to allow all origins
+    origin: "https://factrack.netlify.app/", // or '*' to allow all origins
     methods: ["GET", "POST", "PUT", "DELETE"], // Add other methods if needed
     credentials: true, // If you need to send cookies with the request
   })
