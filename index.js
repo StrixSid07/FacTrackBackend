@@ -12,6 +12,7 @@ const workerRoutes = require("./routes/worker-route");
 const machineRoutes = require("./routes/machine-route");
 const workerrecordRoutes = require("./routes/work-record-route");
 const refmachinesRoutes = require("./routes/ref-machine-route");
+const checkapiRoutes = require("./routes/check-route");
 
 dotenv.config();
 const app = express();
@@ -49,6 +50,7 @@ app.use("/api/workers", workerRoutes);
 app.use("/api/machines", machineRoutes);
 app.use("/api/work-records", workerrecordRoutes);
 app.use("/api/ref-machines", refmachinesRoutes);
+app.use("/api/check", checkapiRoutes);
 
 // Protected admin-only route
 app.get("/api/admin", authMiddleware, (req, res) => {
