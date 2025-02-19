@@ -1,3 +1,4 @@
+const chalk = require("chalk").default;
 const express = require("express");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
@@ -13,6 +14,10 @@ const machineRoutes = require("./routes/machine-route");
 const workerrecordRoutes = require("./routes/work-record-route");
 const refmachinesRoutes = require("./routes/ref-machine-route");
 const checkapiRoutes = require("./routes/check-route");
+const fixvalueapiRoutes = require("./routes/fix-value-route");
+const threadBrandRoutes = require("./routes/thread-brand-route");
+const threadChallanRoutes = require("./routes/thread-challan-routes");
+const monthThreadCountRoutes = require("./routes/month-thread-count-routes");
 
 dotenv.config();
 const app = express();
@@ -51,6 +56,10 @@ app.use("/api/machines", machineRoutes);
 app.use("/api/work-records", workerrecordRoutes);
 app.use("/api/ref-machines", refmachinesRoutes);
 app.use("/api/check", checkapiRoutes);
+app.use("/api/fix-value", fixvalueapiRoutes);
+app.use("/api/thread-brands", threadBrandRoutes);
+app.use("/api/thread-challans", threadChallanRoutes);
+app.use("/api/month-thread-count", monthThreadCountRoutes);
 
 // Protected admin-only route
 app.get("/api/admin", authMiddleware, (req, res) => {
@@ -66,5 +75,5 @@ app.use(errorHandler);
 // Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(chalk.green.bold(`✅ Server running on ${chalk.red.underline(`http://localhost:${PORT}`)}`));
 });
