@@ -39,9 +39,11 @@ const createThreadChallan = async (req, res) => {
 // @desc    Get all Thread Challans
 // @route   GET /api/thread-challans
 // @access  Public
+// Import your models at the top. Adjust the paths as needed.
 const getAllThreadChallans = async (req, res) => {
   try {
-    const { monthYear } = req.query;
+    // Destructure query parameters; both company and parent are optional.
+    const { monthYear, company, parent } = req.query;
 
     if (!monthYear) {
       return res
@@ -50,12 +52,10 @@ const getAllThreadChallans = async (req, res) => {
     }
 
     const [year, month] = monthYear.split("-");
-
-    // Convert to numbers
     const monthInt = parseInt(month);
     const yearInt = parseInt(year);
 
-    // Set filter to match the month and year
+    // Build the date filter for the given month.
     const filter = {
       date: {
         $gte: new Date(yearInt, monthInt - 1, 1), // First day of the month
@@ -63,14 +63,29 @@ const getAllThreadChallans = async (req, res) => {
       },
     };
 
-    // Fetch the challans with the filter applied
+    // If a specific company (sub-brand) is provided, use it.
+    if (company) {
+      filter.company = company;
+    }
+    // Else, if a parent brand is provided, include the parent and its sub-brands.
+    else if (parent) {
+      const subCompanies = await ThreadBrand.find({ parentBrand: parent }).select(
+        "_id"
+      );
+      const subCompanyIds = subCompanies.map((comp) => comp._id.toString());
+      // Include the parent itself along with its sub-brands.
+      filter.company = { $in: [parent, ...subCompanyIds] };
+    }
+    // If neither company nor parent is provided, the filter will only be based on monthYear.
+
+    // Fetch the challans using the filter.
     const threadChallans = await ThreadChallan.find(filter)
       .populate("company", "companyName")
-      .sort({ date: -1, challanNo: 1 }); // Sort by date (descending) and challanNo (ascending)
+      .sort({ date: -1, challanNo: 1 });
 
-    // Group challans by date
+    // Group challans by date (formatted as YYYY-MM-DD)
     const groupedChallans = threadChallans.reduce((acc, challan) => {
-      const dateKey = challan.date.toISOString().split("T")[0]; // Convert to YYYY-MM-DD format
+      const dateKey = challan.date.toISOString().split("T")[0];
       if (!acc[dateKey]) {
         acc[dateKey] = [];
       }

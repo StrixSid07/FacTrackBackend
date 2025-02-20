@@ -73,7 +73,7 @@ app.use(notFound);
 app.use(errorHandler);
 
 // Server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5003;
 app.listen(PORT, () => {
   console.log(chalk.green.bold(`✅ Server running on ${chalk.red.underline(`http://localhost:${PORT}`)}`));
 });
