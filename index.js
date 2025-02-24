@@ -18,6 +18,10 @@ const fixvalueapiRoutes = require("./routes/fix-value-route");
 const threadBrandRoutes = require("./routes/thread-brand-route");
 const threadChallanRoutes = require("./routes/thread-challan-routes");
 const monthThreadCountRoutes = require("./routes/month-thread-count-routes");
+const threadCuttingPriceRoute = require("./routes/thread-cutting-price-route");
+const threadCuttingUserRoute = require("./routes/thread-cutting-user-route");
+const threadCuttingDataListRoutes = require("./routes/thread-cutting-data-list-routes");
+const monthThreadCuttingCountRoutes = require('./routes/month-thread-cutting-count-route');
 
 dotenv.config();
 const app = express();
@@ -60,6 +64,10 @@ app.use("/api/fix-value", fixvalueapiRoutes);
 app.use("/api/thread-brands", threadBrandRoutes);
 app.use("/api/thread-challans", threadChallanRoutes);
 app.use("/api/month-thread-count", monthThreadCountRoutes);
+app.use("/api/thread-cutting-price", threadCuttingPriceRoute);
+app.use("/api/thread-cutting-user", threadCuttingUserRoute);
+app.use("/api/thread-cutting-data-lists", threadCuttingDataListRoutes);
+app.use("/api/month-thread-cutting-count", monthThreadCuttingCountRoutes);
 
 // Protected admin-only route
 app.get("/api/admin", authMiddleware, (req, res) => {
@@ -75,5 +83,9 @@ app.use(errorHandler);
 // Server
 const PORT = process.env.PORT || 5003;
 app.listen(PORT, () => {
-  console.log(chalk.green.bold(`✅ Server running on ${chalk.red.underline(`http://localhost:${PORT}`)}`));
+  console.log(
+    chalk.green.bold(
+      `✅ Server running on ${chalk.red.underline(`http://localhost:${PORT}`)}`
+    )
+  );
 });
