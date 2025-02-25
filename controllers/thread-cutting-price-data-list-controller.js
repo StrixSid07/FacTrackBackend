@@ -104,6 +104,73 @@ const createThreadCuttingDataList = async (req, res) => {
 //     res.status(500).json({ message: error.message });
 //   }
 // };
+// const getAllThreadCuttingDataLists = async (req, res) => {
+//   try {
+//     // Optional filters: monthYear (formatted as YYYY-MM) and cuttingUser
+//     const { monthYear, cuttingUser } = req.query;
+//     const filter = {};
+
+//     if (monthYear) {
+//       const [year, month] = monthYear.split("-");
+//       const yearInt = parseInt(year, 10);
+//       const monthInt = parseInt(month, 10);
+//       filter.date = {
+//         $gte: new Date(yearInt, monthInt - 1, 1),
+//         $lt: new Date(yearInt, monthInt, 1),
+//       };
+//     }
+//     if (cuttingUser) {
+//       filter.cuttingUser = cuttingUser;
+//     }
+
+//     const dataLists = await ThreadCuttingDataList.find(filter)
+//       .populate("cuttingUser", "cuttingUserName")
+//       .populate("threadPrices.threadPrice", "threadPriceName threadPrice")
+//       .sort({ date: -1 });
+
+//     // Transform each data list item:
+//     // - Convert Mongoose document to plain object.
+//     // - For each threadPrices entry, compute a new field "computed" as (threadPrice * quantity).
+//     const transformed = dataLists.map((item) => {
+//       const obj = item.toObject();
+//       obj.threadPrices = obj.threadPrices.map((tp) => {
+//         const priceVal =
+//           typeof tp.threadPrice === "object"
+//             ? tp.threadPrice.threadPrice
+//             : tp.threadPrice;
+//         return {
+//           ...tp,
+//           computed: priceVal * tp.quantity,
+//         };
+//       });
+//       return obj;
+//     });
+
+//     // Group transformed data by date (YYYY-MM-DD)
+//     const grouped = {};
+//     transformed.forEach((item) => {
+//       const dateKey = new Date(item.date).toISOString().split("T")[0];
+//       if (!grouped[dateKey]) {
+//         grouped[dateKey] = [];
+//       }
+//       grouped[dateKey].push(item);
+//     });
+
+//     // For each group, compute total computed value (sum all computed values)
+//     // and round it off to an integer.
+//     const groupedWithTotals = Object.entries(grouped).map(([date, lists]) => {
+//       const total = lists.reduce((sum, list) => {
+//         const listSum = list.threadPrices.reduce((s, tp) => s + tp.computed, 0);
+//         return sum + listSum;
+//       }, 0);
+//       return { date, lists, subtotal: Math.round(total) };
+//     });
+
+//     res.status(200).json({ success: true, data: groupedWithTotals });
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
 const getAllThreadCuttingDataLists = async (req, res) => {
   try {
     // Optional filters: monthYear (formatted as YYYY-MM) and cuttingUser
@@ -126,23 +193,35 @@ const getAllThreadCuttingDataLists = async (req, res) => {
     const dataLists = await ThreadCuttingDataList.find(filter)
       .populate("cuttingUser", "cuttingUserName")
       .populate("threadPrices.threadPrice", "threadPriceName threadPrice")
+      // This sorts individual documents by date descending.
       .sort({ date: -1 });
 
     // Transform each data list item:
     // - Convert Mongoose document to plain object.
     // - For each threadPrices entry, compute a new field "computed" as (threadPrice * quantity).
+    // - Also sort the threadPrices array by the threadPrice value in ascending order.
     const transformed = dataLists.map((item) => {
       const obj = item.toObject();
-      obj.threadPrices = obj.threadPrices.map((tp) => {
-        const priceVal =
-          typeof tp.threadPrice === "object"
-            ? tp.threadPrice.threadPrice
-            : tp.threadPrice;
-        return {
-          ...tp,
-          computed: priceVal * tp.quantity,
-        };
-      });
+      obj.threadPrices = obj.threadPrices
+        .map((tp) => {
+          // Get the numeric value from the populated threadPrice
+          const priceVal =
+            typeof tp.threadPrice === "object"
+              ? tp.threadPrice.threadPrice
+              : tp.threadPrice;
+          return { ...tp, computed: priceVal * tp.quantity };
+        })
+        .sort((a, b) => {
+          const priceA =
+            typeof a.threadPrice === "object"
+              ? a.threadPrice.threadPrice
+              : a.threadPrice;
+          const priceB =
+            typeof b.threadPrice === "object"
+              ? b.threadPrice.threadPrice
+              : b.threadPrice;
+          return priceA - priceB;
+        });
       return obj;
     });
 
@@ -165,6 +244,9 @@ const getAllThreadCuttingDataLists = async (req, res) => {
       }, 0);
       return { date, lists, subtotal: Math.round(total) };
     });
+
+    // Sort the groups by date in descending order (latest date first)
+    groupedWithTotals.sort((a, b) => new Date(b.date) - new Date(a.date));
 
     res.status(200).json({ success: true, data: groupedWithTotals });
   } catch (error) {
