@@ -96,8 +96,10 @@ const getMonthlyThreadCount = async (req, res) => {
       }
     });
 
-    // Convert object to array
-    const brandTotalsArray = Object.values(mainBrandTotals);
+    // Convert object to array and sort by companyName in ascending order
+    const brandTotalsArray = Object.values(mainBrandTotals).sort((a, b) =>
+      a.companyName.localeCompare(b.companyName)
+    );
 
     // Calculate overall totals
     const overallTotalBoxes = brandTotalsArray.reduce(
