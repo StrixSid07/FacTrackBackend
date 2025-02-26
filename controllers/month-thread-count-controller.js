@@ -70,17 +70,18 @@ const getMonthlyThreadCount = async (req, res) => {
 
       // Add sub-brand data
       if (subBrand.parentBrand) {
+        const totalPrice = subBrand.totalBoxes * subBrand.oneBoxPrice;
+
         mainBrandTotals[mainBrandId].subBrands.push({
           companyId: subBrand.companyId,
           companyName: subBrand.companyName,
-          totalBoxes: subBrand.totalBoxes,
-          totalPrice: subBrand.totalBoxes * subBrand.oneBoxPrice,
+          totalBoxes: parseFloat(subBrand.totalBoxes.toFixed(2)),
+          totalPrice: parseFloat(totalPrice.toFixed(2)),
         });
 
         // Accumulate totals in main brand
         mainBrandTotals[mainBrandId].totalBoxes += subBrand.totalBoxes;
-        mainBrandTotals[mainBrandId].totalPrice +=
-          subBrand.totalBoxes * subBrand.oneBoxPrice;
+        mainBrandTotals[mainBrandId].totalPrice += totalPrice;
       }
     });
 
@@ -97,9 +98,13 @@ const getMonthlyThreadCount = async (req, res) => {
     });
 
     // Convert object to array and sort by companyName in ascending order
-    const brandTotalsArray = Object.values(mainBrandTotals).sort((a, b) =>
-      a.companyName.localeCompare(b.companyName)
-    );
+    const brandTotalsArray = Object.values(mainBrandTotals)
+      .map((brand) => ({
+        ...brand,
+        totalBoxes: parseFloat(brand.totalBoxes.toFixed(2)),
+        totalPrice: parseFloat(brand.totalPrice.toFixed(2)),
+      }))
+      .sort((a, b) => a.companyName.localeCompare(b.companyName));
 
     // Calculate overall totals
     const overallTotalBoxes = brandTotalsArray.reduce(
@@ -114,8 +119,8 @@ const getMonthlyThreadCount = async (req, res) => {
     res.status(200).json({
       success: true,
       brands: brandTotalsArray,
-      overallTotalBoxes,
-      overallTotalPrice,
+      overallTotalBoxes: parseFloat(overallTotalBoxes.toFixed(2)),
+      overallTotalPrice: parseFloat(overallTotalPrice.toFixed(2)),
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
