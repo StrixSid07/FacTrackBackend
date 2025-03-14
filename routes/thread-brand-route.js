@@ -7,6 +7,7 @@ const {
   updateThreadBrand,
   deleteThreadBrand,
 } = require("../controllers/thread-brand-controller");
+const authMiddleware = require('../middleware/auth-middleware');
 
 // Define routes
 router.post("/", createThreadBrand);

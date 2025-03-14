@@ -3,6 +3,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const cors = require("cors");
+const helmet = require("helmet");
 const logger = require("./middleware/logger");
 const errorHandler = require("./middleware/error-handler");
 const notFound = require("./middleware/not-found");
@@ -21,7 +22,7 @@ const monthThreadCountRoutes = require("./routes/month-thread-count-routes");
 const threadCuttingPriceRoute = require("./routes/thread-cutting-price-route");
 const threadCuttingUserRoute = require("./routes/thread-cutting-user-route");
 const threadCuttingDataListRoutes = require("./routes/thread-cutting-data-list-routes");
-const monthThreadCuttingCountRoutes = require('./routes/month-thread-cutting-count-route');
+const monthThreadCuttingCountRoutes = require("./routes/month-thread-cutting-count-route");
 
 dotenv.config();
 const app = express();
@@ -49,6 +50,7 @@ app.use(cors());
 // );
 
 // Middleware
+// app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(logger); // Logs every request

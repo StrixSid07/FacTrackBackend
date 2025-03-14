@@ -1,9 +1,13 @@
 const mongoose = require("mongoose");
 const debug = require("debug")("app:db");
 
+// Enable query sanitization to prevent NoSQL injection this cause error in get data 
+// mongoose.set("sanitizeFilter", true);
+
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI, {
+      maxPoolSize: 10,
       serverSelectionTimeoutMS: 30000, // Timeout in case MongoDB server is not reachable
       socketTimeoutMS: 45000,
     });
@@ -25,12 +29,18 @@ const connectDB = async () => {
     debug("Mongoose connection is disconnected");
   });
 
-  // Handle process termination
-  process.on("SIGINT", async () => {
+  // Graceful Shutdown Handling
+  const shutdown = async (signal) => {
+    console.log(`\n🛑 Received ${signal}. Closing MongoDB connection...`);
     await mongoose.connection.close();
+    console.log("✅ MongoDB Connection Closed.");
     debug("Mongoose connection closed due to app termination");
     process.exit(0);
-  });
+  };
+
+  // Handle process termination and server shutdown
+  process.on("SIGINT", () => shutdown("SIGINT"));
+  process.on("SIGTERM", () => shutdown("SIGTERM"));
 };
 
 module.exports = connectDB;
