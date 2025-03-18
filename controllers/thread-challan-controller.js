@@ -212,12 +212,16 @@ const getAllThreadChallans = async (req, res) => {
 
     threadChallans.forEach((challan) => {
       if (challan.entries && Array.isArray(challan.entries)) {
-        challan.entries = challan.entries.map((entry) => ({
-          ...entry,
-          totalPrice: parseFloat(
-            entry.boxCount * (entry.company?.oneBoxPrice || 0)
-          ).toFixed(2),
-        }));
+        challan.entries = challan.entries.map((entry) => {
+          let totalPrice = entry.boxCount * (entry.company?.oneBoxPrice || 0);
+          return {
+            ...entry,
+            totalPrice:
+              totalPrice % 1 === 0
+                ? totalPrice
+                : parseFloat(totalPrice.toFixed(2)),
+          };
+        });
       }
     });
 
