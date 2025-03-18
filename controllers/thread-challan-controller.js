@@ -214,7 +214,9 @@ const getAllThreadChallans = async (req, res) => {
       if (challan.entries && Array.isArray(challan.entries)) {
         challan.entries = challan.entries.map((entry) => ({
           ...entry,
-          totalPrice: entry.boxCount * (entry.company?.oneBoxPrice || 0),
+          totalPrice: parseFloat(
+            entry.boxCount * (entry.company?.oneBoxPrice || 0)
+          ).toFixed(2),
         }));
       }
     });
