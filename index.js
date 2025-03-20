@@ -23,6 +23,8 @@ const threadCuttingPriceRoute = require("./routes/thread-cutting-price-route");
 const threadCuttingUserRoute = require("./routes/thread-cutting-user-route");
 const threadCuttingDataListRoutes = require("./routes/thread-cutting-data-list-routes");
 const monthThreadCuttingCountRoutes = require("./routes/month-thread-cutting-count-route");
+const workerProductionRoutes = require("./routes/worker-production-route");
+const monthWorkerProductionRoutes = require("./routes/month-worker-production-count-route");
 
 dotenv.config();
 const app = express();
@@ -70,6 +72,8 @@ app.use("/api/thread-cutting-price", threadCuttingPriceRoute);
 app.use("/api/thread-cutting-user", threadCuttingUserRoute);
 app.use("/api/thread-cutting-data-lists", threadCuttingDataListRoutes);
 app.use("/api/month-thread-cutting-count", monthThreadCuttingCountRoutes);
+app.use("/api/worker-production", workerProductionRoutes);
+app.use("/api/month-worker-production", monthWorkerProductionRoutes);
 
 // Protected admin-only route
 app.get("/api/admin", authMiddleware, (req, res) => {

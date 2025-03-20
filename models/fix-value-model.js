@@ -1,7 +1,9 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const fixValueSchema = new mongoose.Schema({
-    fixSalCount: {type:Number, require:true}
-})
+  month: { type: String, required: true }, // Format: YYYY-MM
+  category: { type: String, required: true, enum: ["Top", "Duppata"] },
+  fixSalCount: { type: Number, required: true },
+});
 
-module.exports = mongoose.model("Fixvalue", fixValueSchema);
+module.exports = mongoose.model("FixValue", fixValueSchema);

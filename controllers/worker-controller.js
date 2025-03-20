@@ -1,3 +1,4 @@
+const WorkerProduction = require("../models/worker-production-model");
 const Worker = require("../models/worker-model");
 
 exports.createWorker = async (req, res) => {
@@ -79,18 +80,31 @@ exports.deleteWorker = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const deletedWorker = await Worker.findByIdAndDelete(id);
-
-    if (!deletedWorker) {
+    // Fetch the worker details
+    const worker = await Worker.findById(id);
+    if (!worker) {
       return res.status(404).json({
         success: false,
-        message: `Worker with ID ${id} not found.`,
+        message: "Worker not found.",
       });
     }
 
+    // Check if the worker is involved in any production calculations
+    const isWorkerInUse = await WorkerProduction.findOne({ worker: id });
+
+    if (isWorkerInUse) {
+      return res.status(400).json({
+        success: false,
+        message: `The worker "${worker.name}" is currently involved in production calculations. You cannot delete them, but you can modify their details if needed.`,
+      });
+    }
+
+    // Proceed with deletion if not in use
+    await Worker.findByIdAndDelete(id);
+
     res.status(200).json({
       success: true,
-      message: "Worker deleted successfully.",
+      message: `Worker "${worker.name}" deleted successfully.`,
     });
   } catch (error) {
     res.status(500).json({
@@ -143,4 +157,3 @@ exports.getWorkerById = async (req, res) => {
     });
   }
 };
-

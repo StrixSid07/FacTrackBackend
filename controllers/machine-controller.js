@@ -1,3 +1,4 @@
+const WorkerProduction = require("../models/worker-production-model");
 const MachineFrame = require("../models/machine-frame-model");
 const Machine = require("../models/machine-model");
 
@@ -88,18 +89,31 @@ exports.deleteMachine = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const deletedMachine = await Machine.findByIdAndDelete(id);
-
-    if (!deletedMachine) {
+    // Fetch the machine name
+    const machine = await Machine.findById(id);
+    if (!machine) {
       return res.status(404).json({
         success: false,
-        message: `Machine with ID ${id} not found.`,
+        message: "Machine not found.",
       });
     }
 
+    // Check if the machine is in use in any production records
+    const isMachineInUse = await WorkerProduction.findOne({ machine: id });
+
+    if (isMachineInUse) {
+      return res.status(400).json({
+        success: false,
+        message: `The machine "${machine.name}" is currently used in worker calculations. You cannot delete it, but you can modify its details if needed.`,
+      });
+    }
+
+    // Proceed with deletion if not in use
+    await Machine.findByIdAndDelete(id);
+
     res.status(200).json({
       success: true,
-      message: "Machine deleted successfully.",
+      message: `Machine "${machine.name}" deleted successfully.`,
     });
   } catch (error) {
     res.status(500).json({
