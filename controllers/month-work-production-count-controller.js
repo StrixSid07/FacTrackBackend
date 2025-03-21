@@ -5,6 +5,7 @@ const WorkerProduction = require("../models/worker-production-model");
 const MachineFrame = require("../models/machine-frame-model");
 const FixValue = require("../models/fix-value-model");
 const Machine = require("../models/machine-model");
+const Worker = require("../models/worker-model");
 
 exports.getMonthlySalary = async (req, res) => {
   try {
@@ -26,6 +27,12 @@ exports.getMonthlySalary = async (req, res) => {
     const machineDoc = await Machine.findById(machine);
     if (!machineDoc) {
       return res.status(404).json({ message: "Machine not found" });
+    }
+
+    // Fetch worker details
+    const workerDoc = await Worker.findById(worker);
+    if (!workerDoc) {
+      return res.status(404).json({ message: "Worker not found" });
     }
 
     const category = machineDoc.category;
@@ -99,6 +106,8 @@ exports.getMonthlySalary = async (req, res) => {
 
       return res.json({
         category,
+        machineName: machineDoc.name,
+        workerName: workerDoc.name,
         fixSalCountPerDay: parseFloat(fixSalCount.toFixed(2)),
         targetFrames: parseFloat(frameTarget.toFixed(2)),
         days: daysData,
@@ -177,6 +186,8 @@ exports.getMonthlySalary = async (req, res) => {
 
       return res.json({
         category,
+        machineName: machineDoc.name,
+        workerName: workerDoc.name,
         fixSalCountPerDay: parseFloat(fixSalCount.toFixed(2)),
         days: daysData,
         totals: {
