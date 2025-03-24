@@ -87,8 +87,12 @@ exports.getMonthlySalary = async (req, res) => {
         const achieved = day.totalProduction >= frameTarget;
         const bonus = achieved ? 100 : 0;
 
+        let calculatedFixSal = fixSalCount;
+        if (day.totalProduction < frameTarget) {
+          calculatedFixSal = (day.totalProduction / frameTarget) * fixSalCount;
+        }
         totalProduction += day.totalProduction;
-        totalFixedSalary += fixSalCount;
+        totalFixedSalary += calculatedFixSal;
         if (bonus) {
           daysMetTarget += 1;
           totalBonus += bonus;
@@ -98,7 +102,7 @@ exports.getMonthlySalary = async (req, res) => {
           date: day._id,
           production: parseFloat(day.totalProduction.toFixed(2)),
           targetFrames: parseFloat(frameTarget.toFixed(2)), // Add frames target for each day
-          fixSalCount: parseFloat(fixSalCount.toFixed(2)), // FixSalCount for each day
+          fixSalCount: parseFloat(calculatedFixSal.toFixed(2)), // FixSalCount for each day
           bonus: parseFloat(bonus.toFixed(2)),
           status: achieved ? "Achieved" : "Not Achieved",
         };
@@ -165,7 +169,11 @@ exports.getMonthlySalary = async (req, res) => {
         const bonus = achieved ? 100 : 0;
 
         totalPercentage += day.totalPercentage;
-        totalFixedSalary += fixSalCount;
+        let calculatedFixSal = fixSalCount;
+        if (day.totalPercentage < 100) {
+          calculatedFixSal = (day.totalPercentage / 100) * fixSalCount;
+        }
+        totalFixedSalary += calculatedFixSal;
         if (bonus) {
           daysMetTarget += 1;
           totalBonus += bonus;
@@ -178,7 +186,7 @@ exports.getMonthlySalary = async (req, res) => {
             production: parseFloat(f.production.toFixed(2)),
             frame: parseFloat(f.frame.toFixed(2)),
           })), // Print production and frames for each day
-          fixSalCount: parseFloat(fixSalCount.toFixed(2)), // FixSalCount for each day
+          fixSalCount: parseFloat(calculatedFixSal.toFixed(2)), // FixSalCount for each day
           bonus: parseFloat(bonus.toFixed(2)),
           status: achieved ? "Achieved" : "Not Achieved",
         };
