@@ -22,6 +22,25 @@ exports.createProduction = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Worker not found" });
 
+    // Convert the incoming date to UTC
+    const startOfDay = new Date(date + "T00:00:00Z");
+
+    // Check if the worker has taken leave on the given date
+    const isOnLeave = worker.leaveDates.some(
+      (leaveDate) =>
+        leaveDate.toISOString().split("T")[0] ===
+        startOfDay.toISOString().split("T")[0]
+    );
+
+    if (isOnLeave) {
+      return res.status(400).json({
+        success: false,
+        message: `Worker ${worker.name} is on leave on ${
+          startOfDay.toISOString().split("T")[0]
+        }. Production entry is not allowed.`,
+      });
+    }
+
     const machine = await Machine.findById(machineId);
     if (!machine)
       return res
