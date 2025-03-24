@@ -87,12 +87,23 @@ exports.getMonthlySalary = async (req, res) => {
         const achieved = day.totalProduction >= frameTarget;
         const bonus = achieved ? 100 : 0;
 
-        let calculatedFixSal = fixSalCount;
+        // let calculatedFixSal = fixSalCount;
+        // if (day.totalProduction < frameTarget) {
+        //   calculatedFixSal = (day.totalProduction / frameTarget) * fixSalCount;
+        // }
+        // totalFixedSalary += calculatedFixSal;
+
+        let calculatedFixSal;
+
         if (day.totalProduction < frameTarget) {
-          calculatedFixSal = (day.totalProduction / frameTarget) * fixSalCount;
+          calculatedFixSal = Math.floor(day.totalProduction * 1.5); // Apply 1.5 multiplier
+        } else {
+          calculatedFixSal = fixSalCount; // Cap at fixSalCount if production meets/exceeds target
         }
-        totalProduction += day.totalProduction;
+
         totalFixedSalary += calculatedFixSal;
+
+        totalProduction += day.totalProduction;
         if (bonus) {
           daysMetTarget += 1;
           totalBonus += bonus;
