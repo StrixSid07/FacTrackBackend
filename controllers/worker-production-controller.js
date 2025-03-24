@@ -47,9 +47,6 @@ exports.createProduction = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Machine not found" });
 
-    // Convert the incoming date to UTC
-    const startOfDay = new Date(date + "T00:00:00Z"); // Treat as UTC
-
     // Check if a record already exists for the same worker, machine, and date
     const existingProduction = await WorkerProduction.findOne({
       worker: workerId,
